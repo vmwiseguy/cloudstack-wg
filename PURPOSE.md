@@ -170,42 +170,196 @@ The header of the JSON data should contain the following for all calls:
 </table>
 
 
-**SECURITY**
+**Proposed API List**
 
-**Generate TOKEN**
-
-API would allow the caller to receive a token to be used for further requests. Caller would pass credentials (userid/password) to be authenticated for a token to be generated.
-
-Token should have a "life span" and expire after a defined time of non-use
-
-Token should be tied to IP address of caller at the least, along with some other identifier
+The following is a proposed list of APIs, along with input, output and any other notes of interest for each
 
 <table>
-  <tr>
-    <td>API Name</td>
-    <td>POST or GET</td>
-    <td>Data Type</td>
-    <td>Contents</td>
-  </tr>
-  <tr>
-    <td>get-token</td>
-    <td>POST</td>
-    <td>string</td>
-    <td>{
-"userid":”xxxxxx”,
-“password”:”xxxxxx”
-}</td>
-  </tr>
+<tbody>
+<tr>
+  <td>API</td>
+  <td>Input</td>
+  <td>Output</td>
+  <td>Other Info</td>
+</tr>
+<tr>
+  <td>version</td>
+  <td>Default - no API</td>
+  <td>Version details of cloud manager</td>
+  <td>No authority required</td>
+</tr>
+<tr>
+  <td>Sign-in (get token)</td>
+  <td>Admin-token-key in header, with &ldquo;API host key&rdquo; along with uid/pwd for authentication</td>
+  <td>Authorized token string</td>
+  <td>Additional auth calls can be done with token and no uid/pwd</td>
+</tr>
+<tr>
+  <td>Sign-out (invalidate token)</td>
+  <td>Authorized token key</td>
+  <td>Basic results block (return code)</td>
+  <td>Allows the token to be invalidate so it can&rsquo;t be used again</td>
+</tr>
+<tr>
+  <td>List Guests</td>
+  <td><ul>
+    <li>Nothing</li>
+    <li>A &ldquo;host&rdquo; name (LPAR) ?</li>
+    <li>By GROUP ?</li>
+    </ul></td>
+  <td>Json array of guest names; possibly include NODE or HOST names (LPAR)?</td>
+  <td>Do people NEED to see guests on a specific HOST or should there be a HOST (LPAR) included in the list for Enterprise views?</td>
+</tr>
+<tr>
+  <td>List Images</td>
+  <td>Nothing</td>
+  <td>Json array of image names and their characteristics; OS type/level, description, etc</td>
+  <td>Stored images for cloning new servers. Could be a kickstart &ldquo;process&rdquo; also.</td>
+</tr>
+<tr>
+  <td>Create Guest</td>
+  <td><ul>
+    <li>New userid</li>
+    <li>Clone-from image name (userid) (optional?)</li>
+    <li>Overrides:</li>
+    </ul>
+    <ul>
+    <li>CPUs</li>
+    <li>MEM</li>
+    <li>IP, VSWITCH, VLAN (etc)</li>
+    <li>others...</li>
+    </ul></td>
+  <td>Basic results block (return code)</td>
+  <td></td>
+</tr>
+<tr>
+  <td>Add disk</td>
+  <td>Userid, lists of disks (vdev, size, format (or source uid/disk), diskpool)</td>
+  <td>Basic results block (return code)</td>
+  <td></td>
+</tr>
+<tr>
+  <td>Delete disk</td>
+  <td>Userid and list of vdevs to delete</td>
+  <td>Basic results block (return code)</td>
+  <td></td>
+</tr>
+<tr>
+  <td>Guest Details</td>
+  <td>userid</td>
+  <td>Json block including cpu, memory, disks/vdevs/size, etc.</td>
+  <td>Basically the directory details but formatted for json</td>
+</tr>
+<tr>
+  <td>Guest Directory</td>
+  <td>userid</td>
+  <td>user&rsquo;s directory entry</td>
+  <td>Pwds masked</td>
+</tr>
+<tr>
+  <td>Delete Guest</td>
+  <td><ul>
+    <li>Userid</li>
+    <li>How: Purge or Disable (optional; default action defined on manager)</li>
+    </ul></td>
+  <td>Basic results block (return code)</td>
+  <td></td>
+</tr>
+<tr>
+  <td>Guest Status</td>
+  <td>userid</td>
+  <td>Monitor details&hellip;.???</td>
+  <td></td>
+</tr>
+<tr>
+  <td>Start guest</td>
+  <td>userid</td>
+  <td>Basic results block (return code)</td>
+  <td></td>
+</tr>
+<tr>
+  <td>Stop guest</td>
+  <td><ul>
+    <li>Userid</li>
+    <li>How: (hard or soft)</li>
+    </ul></td>
+  <td>Basic results block (return code)</td>
+  <td></td>
+</tr>
+<tr>
+  <td>Pause/Unpause guest</td>
+  <td></td>
+  <td></td>
+  <td>???? value ????</td>
+</tr>
+<tr>
+  <td>Reboot guest</td>
+  <td><ul>
+    <li>Userid</li>
+    <li>How: hard or soft; hard means re-IPL without shutdown attempt; soft is default</li>
+    </ul></td>
+  <td>Basic results block (return code)</td>
+  <td>Graceful shutdown and restart</td>
+</tr>
+<tr>
+  <td>Reset guest</td>
+  <td><ul>
+    <li>Userid</li>
+    <li>How: hard or soft; hard means LOGOFF without shutdown attempt; soft is default</li>
+    </ul></td>
+  <td>Basic results block (return code)</td>
+  <td>Graceful shutdown, logoff VM and AUTOLOG</td>
+</tr>
+<tr>
+  <td>Guest Console</td>
+  <td><ul>
+    <li>Userid</li>
+    <li>Other parms to limit output?</li>
+    </ul></td>
+  <td>The console data</td>
+  <td>This could be unwieldy if not limited; will required setting up on VM side</td>
+</tr>
+<tr>
+  <td>Deploy (clone??) guest</td>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td>Guest Powerstate</td>
+  <td>userid</td>
+  <td>On or Off</td>
+  <td>Is userid running or not?</td>
+</tr>
+<tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td>SYSTEM APIs - like VSWITCH, etc??</td>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+</tbody>
 </table>
-
-
-Responses:
-
-rc 0 in header is success; anything else is failure
-
-On success header will contain
-
-"auth-token":”string...”
-
-Well, I gave it a start… quite a lot more to go. James V
-
